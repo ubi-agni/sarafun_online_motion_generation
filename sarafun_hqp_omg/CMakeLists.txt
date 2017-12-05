@@ -125,7 +125,7 @@ file(GLOB_RECURSE ALL_HEADERS include/*.h)
 
 add_executable(${PROJECT_NAME}      ${Srcs} ${ALL_HEADERS})
 #set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} armadillo soth)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} soth)
 
 
 # Find the absolute path to the orocos-kdl library
