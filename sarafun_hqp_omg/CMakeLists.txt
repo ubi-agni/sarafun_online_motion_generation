@@ -13,8 +13,25 @@ set(CMAKE_AUTOMOC ON)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 
+find_package(PkgConfig REQUIRED)
+function(pkg_check_variable _pkg _name)
+    string(TOUPPER ${_pkg} _pkg_upper)
+    string(TOUPPER ${_name} _name_upper)
+    string(REPLACE "-" "_" _pkg_upper ${_pkg_upper})
+    string(REPLACE "-" "_" _name_upper ${_name_upper})
+    set(_output_name "${_pkg_upper}_${_name_upper}")
+
+    execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=${_name} ${_pkg}
+                    OUTPUT_VARIABLE _pkg_result
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    set("${_output_name}" "${_pkg_result}" PARENT_SCOPE)
+endfunction()
+pkg_search_module(SOTH REQUIRED soth)
+pkg_check_variable(soth eigen_include)
+pkg_check_variable(soth includedir)
+
 find_package(orocos_kdl REQUIRED)
-find_package(Eigen3 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     kdl_parser
@@ -26,8 +43,6 @@ find_package(catkin REQUIRED COMPONENTS
 # Just to make included headers from msg,srv.. project name irrelevant
 ADD_DEFINITIONS(-DPROJECT_NAME=${PROJECT_NAME})
 
-
-message(STATUS "Eigen3 found at:" ${EIGEN3_INCLUDE_DIR})
 ################################################a
 ## Declare ROS messages, services and actions ##
 ################################################
@@ -95,8 +110,7 @@ catkin_package(
 include_directories(
         include
         ${CATKIN_DEVEL_PREFIX}/include/${PROJECT_NAME}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${SOTH_EIGEN_INCLUDE} ${SOTH_INCLUDEDIR}
         ${catkin_INCLUDE_DIRS}
         ${orocos_kdl_INCLUDE_DIRS}
 )
@@ -105,27 +119,20 @@ include_directories(
 # Set your files and resources here
 set( Srcs src/main.cpp src/hqp_wrapper.cpp src/obsav_controller.cpp  src/obstacle.cpp srv/initHQP.srv srv/addObs.srv msg/obstacle.msg)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-
+add_compile_options(-std=c++11)
+link_directories(${SOTH_LIBRARY_DIRS})
 file(GLOB_RECURSE ALL_HEADERS include/*.h)
-
-# USED only for some QTcreator stupidity between versions... ??
-add_library(${PROJECT_NAME}_testlib ${Srcs} ${ALL_HEADERS})
 
 add_executable(${PROJECT_NAME}      ${Srcs} ${ALL_HEADERS})
 #set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES}  armadillo soth)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} armadillo soth)
 
 
 # Find the absolute path to the orocos-kdl library
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-#!!!!!!!!!!!!!!!!!!!! in order for message gen to work from cmake/QtCreator
-#add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp ${UI_Srcs})
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS}  ${${PROJECT_NAME}_EXPORTED_TARGETS})
-add_dependencies(${PROJECT_NAME}_testlib ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS}  ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 
 ## Specify libraries to link a library or executable target against
