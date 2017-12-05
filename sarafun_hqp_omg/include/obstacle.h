@@ -2,7 +2,7 @@
 #define OBSTACLE_H
 
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <iostream>
 
 // Define the accepted overshoot bound for the obstacle avoidance

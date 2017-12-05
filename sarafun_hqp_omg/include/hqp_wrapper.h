@@ -1,9 +1,8 @@
 #ifndef HQP_WRAPPER_H
 #define HQP_WRAPPER_H
 
-
 #include <soth/HCOD.hpp>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 
 #define SATUR(x,Lim) ((x)>(Lim))?(Lim):(((x)<-(Lim))?(-(Lim)):(x))

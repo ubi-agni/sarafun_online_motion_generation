@@ -1,8 +1,7 @@
 #ifndef OBSAV_CONTROLLER_H
 #define OBSAV_CONTROLLER_H
 
-
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include "obstacle.h"
 #include <iostream>
 
